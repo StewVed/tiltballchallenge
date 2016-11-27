@@ -1,0 +1,25 @@
+.btn {
+    text-align: center;
+    text-decoration:none;
+    margin: 0;
+    padding: 1px 4px;
+    color: #000;
+    border: 1px solid #a7a7a7;
+    border-radius: 6px;
+}
+
+.btnGrey {
+    background-color: #d5d5d5;
+    background: linear-gradient(#eee, #999);
+    transition: background 0.5s;
+}
+
+.btnGrey:hover {
+    background-color: #dfdfdf;
+    background: linear-gradient(#fff, #aaa);
+}
+
+.btnGrey:active {
+    background: linear-gradient(#ddd, #888);
+    border: 1px solid #c28167;
+}
