@@ -1,3 +1,6 @@
+var rubbing = .75;
+var squidgy = .50;
+
 function gameCollisions() {
   //quick local var for the ball
   /*
@@ -14,50 +17,28 @@ function gameCollisions() {
   if (gameVars.ball.posiX <= 0) {
     gameVars.ball.posiX = -gameVars.ball.posiX;
     // for instance, if it was -3, it will now be + 3
-    gameVars.ball.speedX = -(0.90 * gameVars.ball.speedX);
+    gameVars.ball.speedX = -(gameVars.ball.speedX * squidgy);
     //give the ball some shock absorbtion and reverse it
-    //give the ball a little friction
-    gameVars.ball.speedY = (0.985 * gameVars.ball.speedY);
     //advanced physics stuff could be done with ball spin, and other 'real' variables if you want.
     soundBeep('sine', 750, 1, 100);
   }
   // Check for right wall:
   if (gameVars.ball.posiX >= (gameWindow.initWidth - gameVars.ball.width)) {
     gameVars.ball.posiX = (gameWindow.initWidth - gameVars.ball.width) + ((gameWindow.initWidth - gameVars.ball.width) - gameVars.ball.posiX);
-    gameVars.ball.speedX = 0 - (0.90 * gameVars.ball.speedX);
-    //give the ball a little friction
-    gameVars.ball.speedY = (0.985 * gameVars.ball.speedY);
+    gameVars.ball.speedX = 0 - (gameVars.ball.speedX * squidgy);
     soundBeep('sine', 750, 1, 100);
   }
   // Check for Ceiling:
   if (gameVars.ball.posiY <= 0) {
     gameVars.ball.posiY = -gameVars.ball.posiY;
-    gameVars.ball.speedY = -(0.90 * gameVars.ball.speedY);
+    gameVars.ball.speedY = -(gameVars.ball.speedY * squidgy);
     soundBeep('sine', 1000, 1, 100);
   }
   //Check for floor:
   if (gameVars.ball.posiY >= (gameWindow.initHeight - gameVars.ball.height)) {
-    if (gameVars.ball.onGround) {
-      gameVars.ball.posiY = (gameWindow.initHeight - gameVars.ball.height);
-      //put the ball on the ground
-      //if the ball is almost stopped, stop it completely.
-      if (gameVars.ball.speedX < 40 && gameVars.ball.speedX > -40) {
-        gameVars.ball.speedY = 0;
-      }
-    } else {
-      gameVars.ball.posiY = (gameWindow.initHeight - gameVars.ball.height) + ((gameWindow.initHeight - gameVars.ball.height) - gameVars.ball.posiY);
-      if (gameVars.ball.speedY > -40 && gameVars.ball.speedY < 40) {
-        gameVars.ball.speedY = 0;
-        gameVars.ball.onGround = 1;
-        gameVars.ball.posiY = (gameWindow.initHeight - gameVars.ball.height);
-        //put the ball on the ground
-      } else {
-        gameVars.ball.speedY = -(0.85 * gameVars.ball.speedY);
-        soundBeep('sine', 500, 1, 100);
-      }
-    }
-    //give the ball a little friction
-    gameVars.ball.speedX = (0.985 * gameVars.ball.speedX);
+    gameVars.ball.posiY = (gameWindow.initHeight - gameVars.ball.height) + ((gameWindow.initHeight - gameVars.ball.height) - gameVars.ball.posiY);
+    gameVars.ball.speedY = -(gameVars.ball.speedY * squidgy);
+    soundBeep('sine', 500, 1, 100);
   }
   // extra stuff here, like walls, objects, etc,
 }
@@ -122,17 +103,18 @@ function showRawData() {
 }
 
 function gameMoveBall(frameTime) {
-  if (deviceVars.orientation.gamma < -70 && deviceVars.orientation.gamma > 70) {
-    //this version should mean you can move the ball about kind of as a ixed inertia object!
-    gameVars.ball.speedX += deviceVars.accelerationIncludingGravity.x;
-    gameVars.ball.speedY += deviceVars.accelerationIncludingGravity.y;
-  }
-  else {
-    //this would ber more like a spirit level, which is the original idea from Belinda Robinson - like the old physical games.
-    gameVars.ball.speedX += deviceVars.orientation.beta;
-    gameVars.ball.speedY += -deviceVars.orientation.gamma;
-  }
+  /*
+  //this should mean you can move the ball about kind of as a ixed inertia object!
+  gameVars.ball.speedX += deviceVars.accelerationIncludingGravity.x;
+  gameVars.ball.speedY += deviceVars.accelerationIncludingGravity.y;
+  */
+  //this should ber more like a spirit level, which is the original idea by Belinda Robinson;
+  gameVars.ball.speedX += deviceVars.orientation.beta;
+  gameVars.ball.speedY += -deviceVars.orientation.gamma;
 
+  //add ball friction... depends on the ball type of course.
+  gameVars.ball.speedX *= rubbing;
+  gameVars.ball.speedY *= rubbing;
 
 
   gameVars.ball.posiX += (gameVars.ball.speedX * frameTime);
