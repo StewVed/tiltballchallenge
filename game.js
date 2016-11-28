@@ -122,15 +122,15 @@ function showRawData() {
 }
 
 function gameMoveBall(frameTime) {
-  if (deviceVars.orientation.beta > -80 && deviceVars.orientation.beta < -100) {
+  if (deviceVars.orientation.beta > -80 && deviceVars.orientation.beta > 80) {
     //this version should mean you can move the ball about kind of as a ixed inertia object!
-    gameVars.ball.speedX = deviceVars.accelerationIncludingGravity.x;
-    gameVars.ball.speedY = deviceVars.accelerationIncludingGravity.y;
+    gameVars.ball.speedX += -deviceVars.accelerationIncludingGravity.x;
+    gameVars.ball.speedY += deviceVars.accelerationIncludingGravity.y;
   }
   else {
     //this would ber more like a spirit level, which is the original idea from Belinda Robinson - like the old physical games.
-    gameVars.ball.speedX = deviceVars.orientation.beta;
-    gameVars.ball.speedY = deviceVars.orientation.gamma;
+    gameVars.ball.speedX += deviceVars.orientation.beta;
+    gameVars.ball.speedY += -deviceVars.orientation.gamma;
   }
 
 
