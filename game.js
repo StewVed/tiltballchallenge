@@ -122,9 +122,9 @@ function showRawData() {
 }
 
 function gameMoveBall(frameTime) {
-  if (deviceVars.orientation.beta > -80 && deviceVars.orientation.beta > 80) {
+  if (deviceVars.orientation.gamma < -70 && deviceVars.orientation.gamma > 70) {
     //this version should mean you can move the ball about kind of as a ixed inertia object!
-    gameVars.ball.speedX += -deviceVars.accelerationIncludingGravity.x;
+    gameVars.ball.speedX += deviceVars.accelerationIncludingGravity.x;
     gameVars.ball.speedY += deviceVars.accelerationIncludingGravity.y;
   }
   else {
