@@ -310,6 +310,10 @@ function deviceMove(e) {
   deviceVars.rotationRate.gamma = null2zero(e.rotationRate.gamma);
 
   deviceVars.interval = null2zero(e.interval);
+
+
+  //or the sake of testing, add a little acceleration here:
+  deviceVars.accelerationIncludingGravity.y = 9.8;
 }
 
 function null2zero(num) {

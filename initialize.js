@@ -45,16 +45,11 @@ var deviceVars = {
   orientation:{alpha:0, beta:0, gamma:0},
   interval:0
 }
-/*
-  
-*/
-var devStuff = '';
-
-
 
 // Create the main sound var
 var WinAudioCtx = new (window.AudioContext || window.webkitAudioContext); //webkit prefix for safari according to caniuse
-
+//add a global volume control variable, set to 50% for the moment.
+var globVol = .5;
 
 
 /*
@@ -64,55 +59,22 @@ var WinAudioCtx = new (window.AudioContext || window.webkitAudioContext); //webk
 */
 
 function Init() {
-  /*
-   * Create an object to hold vars relating to the screen:
-   *
-   * initWidth & initHeight are the base size that our game is rendered in.
-   *
-   * Width & Height are the current size of the game window.
-   *
-   * Scale is the difference between the base size and current size.
-   * This is for scaling the rendered graphics to the current size of the window.
-   *
-   * This template's aspect ratio is 16:9, since that is the de-facto standard it seems.
-   * 640 x 360 is excellent since they are multiples of 16 :D
-   * an initial size in pixles is also best for fixes-size images used in sprites.
-   * Also, it should mean that the game looks the same on whatever sized screen is used.
-   * My own monitor is 1280 x 1024 (5:4) by the way, but many games would give
-   * or take advantage if played in a different screen ratio... widescreen flappy bird
-   * for example, and you could plan ahead, being able to see coming pipes to fly through.
-   *
-   * You can have whatever by changing the initWidth/initHeight.
-  */
   gameWindow = {
     initWidth:640, initHeight:360, width:0, weight:0, scale:1
   };
 
-  /*
-   * Create an object to hold the vars relating to the game:
-   *
-   * tWoz is the time of the last frame. take this from tNow to find the length of time since the last frame
-   *
-   * tFrame is the var that holds the requestAnimationFrame (or timeout), so that it can be stopped
-   *
-   * gameBack,gameMain,gameFore are links to the canvas elements for quicker/easier access - same with the CTX
-   *
-   * ball is the single element in this game template. you can add depth, posiZ, speedZ if you want 3D, and
-   * other attributes as you wish
-   *
-   * Sound(s) and Sprite(s) are links to the image and audio data files.
-  */
   gameVars = {
     tWoz:0, tFrame:0,
     gameBack:null, gameMain:null, gameFore:null,
     gameBackCTX:null, gameMainCTX:null, gameForeCTX:null,
-    ball:{width:32, height:32, flinging:0, onGround:0, posiX:300, posiY:160, speedX:100, speedY:-300},
+    ball:{width:32, height:32, flinging:0, posiX:0, posiY:1, speedX:0.0001, speedY:0.0001},
     sound:null, sprite:null
   };
 
-  //spriteImg = document.getElementById('spriteImg');
-
-
+  //center the ball to the game area:
+  gameVars.ball.posiX = ((gameWindow.initWidth / 2) - (gameVars.ball.width / 2));
+  //gameVars.ball.posiY = ((gameWindow.initHeight / 2) - (gameVars.ball.height / 2));
+  
   //Create the canvas elements for the game:
   document.getElementById('gameContainer').innerHTML =
   '<canvas id="gameSprite" style="position:absolute;"></canvas>' +
@@ -120,12 +82,10 @@ function Init() {
   '<canvas id="gameMain" style="position:absolute;margin:0;left:0;"></canvas>' +
   '<canvas id="gameFore" style="position:absolute;margin:0;left:0;"></canvas>';
 
-  // Add event listeners to the game elenemt
+  //Add event listeners to the game elenemt
   addEventListeners();
-  // initialize the mouse event
+  //Initialize the mouse event
   mouseClear();
-
-
 
   /*
    * I will assume that making a permanent var of elements means faster access to them...
@@ -143,11 +103,6 @@ function Init() {
   gameVars.gameMainCTX = gameVars.gameMain.getContext('2d');
   gameVars.gameForeCTX = gameVars.gameFore.getContext('2d');
 
-
-  /*
-   * TODO:
-   * add game save and load. use webtop's HTML5 localStorage and export/import too :D
-   */
   //for the moment, just use the default keyset:
   keysCurrent = keysDefault;
 
@@ -210,19 +165,12 @@ function addEventListeners() {
   //hopefully this will let me pause/resume depending on whether
   //the game element is focused.
   //proilly have to be canvasFore element - dunno cos of bubbling.
-  document.getElementById('gameFore').addEventListener('focus', function(){gamePause(0)}, false);
-  document.getElementById('gameFore').addEventListener('blur', function(){gamePause(1)}, false);
+  document.getElementById('gameFore').addEventListener('focus', function(){gamePause(0)});
+  document.getElementById('gameFore').addEventListener('blur', function(){gamePause(1)});
 
-  /*
-    https://developers.google.com/web/fundamentals/native-hardware/device-orientation/
-  */
   if (window.DeviceOrientationEvent) {
-    window.addEventListener('deviceorientation', deviceOrient, false);
+    window.addEventListener('deviceorientation', deviceOrient);
   }
-  else {
-    //popup a message or somert saying device doesn't support dfevice orientation.
-  }
-
   if (window.DeviceMotionEvent) {
     window.addEventListener('devicemotion', deviceMove);
   }
