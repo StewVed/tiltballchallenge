@@ -1,5 +1,5 @@
-var rubbing = .75;
-var squidgy = .50;
+var rubbing = .85;
+var squidgy = .75;
 
 function gameCollisions() {
   //quick local var for the ball
