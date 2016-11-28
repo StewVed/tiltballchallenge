@@ -41,7 +41,7 @@ var touchVars = []; //global array to handle ongoing touch events
 var deviceVars = {
   accelerationIncludingGravity:{x:0, y:0, z:0},
   acceleration:{x:0, y:0, z:0},
-  rotationRate:{x:0, y:0, z:0},
+  rotationRate:{alpha:0, beta:0, gamma:0},
   orientation:{alpha:0, beta:0, gamma:0},
   interval:0
 }

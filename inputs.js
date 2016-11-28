@@ -262,15 +262,15 @@ if (window.DeviceOrientationEvent) {
 function deviceOrient(e) {
   //Moz    : A number representing the motion of the device around the z axis, express in degrees with values ranging from 0 to 360
   //WebKit : The rotation around the z axis. The alpha value is 0° when the top of the device is pointed directly north. As the device is rotated counter-clockwise, the alpha value increases.
-  deviceVars.orientation.alpha = e.alpha;
+  deviceVars.orientation.alpha = null2zero(e.alpha);
 
   //Moz    : A number representing the motion of the device around the x axis, express in degrees with values ranging from -180 to 180. This represents a front to back motion of the device.
   //WebKit : The rotation around the x axis. The beta value is 0° when the top and bottom of the device are equidistant from the surface of the earth. The value increases as the top of the device is tipped toward the surface of the earth.
-  deviceVars.orientation.beta = e.beta;
+  deviceVars.orientation.beta = null2zero(e.beta);
 
   //Moz    : A number representing the motion of the device around the y axis, express in degrees with values ranging from -90 to 90. This represents a left to right motion of the device.
   //WebKit : The rotation around the y axis. The gamma value is 0° when the left and right edges of the device are equidistant from the surface of the earth. The value increases as the right side is tipped towards the surface of the earth.
-  deviceVars.orientation.gamma = e.gamma;
+  deviceVars.orientation.gamma = null2zero(e.gamma);
 }
 
 
@@ -297,20 +297,26 @@ function deviceMove(e) {
       {interval:0}
     ]
   */
-  deviceVars.accelerationIncludingGravity.x = e.accelerationIncludingGravity.x;
-  deviceVars.accelerationIncludingGravity.y = e.accelerationIncludingGravity.y;
-  deviceVars.accelerationIncludingGravity.z = e.accelerationIncludingGravity.z;
+  deviceVars.accelerationIncludingGravity.x = null2zero(e.accelerationIncludingGravity.x);
+  deviceVars.accelerationIncludingGravity.y = null2zero(e.accelerationIncludingGravity.y);
+  deviceVars.accelerationIncludingGravity.z = null2zero(e.accelerationIncludingGravity.z);
 
-  deviceVars.acceleration.x = e.acceleration.x;
-  deviceVars.acceleration.y = e.acceleration.y;
-  deviceVars.acceleration.z = e.acceleration.z;
+  deviceVars.acceleration.x = null2zero(e.acceleration.x);
+  deviceVars.acceleration.y = null2zero(e.acceleration.y);
+  deviceVars.acceleration.z = null2zero(e.acceleration.z);
 
-  deviceVars.rotationRate.alpha = e.rotationRate.alpha;
-  deviceVars.rotationRate.beta = e.rotationRate.beta;
-  deviceVars.rotationRate.gamma = e.rotationRate.gamma;
+  deviceVars.rotationRate.alpha = null2zero(e.rotationRate.alpha);
+  deviceVars.rotationRate.beta = null2zero(e.rotationRate.beta);
+  deviceVars.rotationRate.gamma = null2zero(e.rotationRate.gamma);
 
-  deviceVars.interval = e.interval;
+  deviceVars.interval = null2zero(e.interval);
 }
 
+function null2zero(num) {
+  if (num == null) {
+    num = 0;
+  }
+  return num;
+}
 
 

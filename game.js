@@ -73,17 +73,11 @@ function gameMainLoop() {
   var frameTime = (tNow - gameVars.tWoz);
   gameVars.tWoz = tNow;
   if (frameTime > 0 && !gameVars.paused) {
-    /*
-     * update any gamepads here.
-     * The mouse, touch, and keyboard inputs are updated as they change.
-    */
-
-    /*
+    //update any gamepads here; the mouse, touch, and keyboard inputs are updated as they change.
     gamePadUpdate();
     gameMoveBall(frameTime / 500);
     gameCollisions();
     gameRenderMain();
-    */
 
     showRawData();
   }
@@ -92,50 +86,56 @@ function gameMainLoop() {
   });
 }
 
-function showRawData() { 
+function showRawData() {
   gameVars.gameForeCTX.clearRect(0, 0, gameWindow.width, gameWindow.height);
-  gameVars.gameForeCTX.font = '100% Arial';
+  gameVars.gameForeCTX.font = '100% sans-serif';
   gameVars.gameForeCTX.fillStyle = '#4f3';
-  gameVars.gameForeCTX.textAlign = 'left';
 
-  devStuff = 'accelWithGrav (m/s2)  ';
-  devStuff += 'x ' + deviceVars.accelerationIncludingGravity.x + ' | ';
-  devStuff += 'y ' + deviceVars.accelerationIncludingGravity.y + ' | ';
-  devStuff += 'z ' + deviceVars.accelerationIncludingGravity.z;
-  gameVars.gameForeCTX.fillText(devStuff, 3, 13);
+  var textHeight = parseFloat(gameVars.gameForeCTX.font) * 2 ;
+  
+  devStuff = 'accelWithGrav (m/s2) ';
+  devStuff += 'x ' + deviceVars.accelerationIncludingGravity.x.toFixed(2) + ' | ';
+  devStuff += 'y ' + deviceVars.accelerationIncludingGravity.y.toFixed(2)  + ' | ';
+  devStuff += 'z ' + deviceVars.accelerationIncludingGravity.z.toFixed(2) ;
+  gameVars.gameForeCTX.fillText(devStuff, 3, (textHeight * 1));
    
-  devStuff = 'acceleration     (m/s2)  ';
-  devStuff += 'x ' + deviceVars.acceleration.x + ' | ';
-  devStuff += 'y ' + deviceVars.acceleration.y + ' | ';
-  devStuff += 'z ' + deviceVars.acceleration.z;
-  gameVars.gameForeCTX.fillText(devStuff, 3, 33);
+  devStuff = 'acceleration     (m/s2) ';
+  devStuff += 'x ' + deviceVars.acceleration.x.toFixed(2)  + ' | ';
+  devStuff += 'y ' + deviceVars.acceleration.y.toFixed(2)  + ' | ';
+  devStuff += 'z ' + deviceVars.acceleration.z.toFixed(2) ;
+  gameVars.gameForeCTX.fillText(devStuff, 3, (textHeight * 2));
 
-  devStuff = 'rotationRate        (°/s)   ';
-  devStuff += 'alpha ' + deviceVars.rotationRate.alpha + ' | ';
-  devStuff += 'beta ' + deviceVars.rotationRate.beta + ' | ';
-  devStuff += 'gamma ' + deviceVars.rotationRate.gamma;
-  gameVars.gameForeCTX.fillText(devStuff, 3, 53);
+  devStuff = 'rotationRate     (°/s)    ';
+  devStuff += 'a ' + deviceVars.rotationRate.alpha.toFixed(2)  + ' | ';
+  devStuff += 'b ' + deviceVars.rotationRate.beta.toFixed(2)  + ' | ';
+  devStuff += 'g ' + deviceVars.rotationRate.gamma.toFixed(2) ;
+  gameVars.gameForeCTX.fillText(devStuff, 3, (textHeight * 3));
 
-  devStuff = 'orientation      (°)    ';
-  devStuff += 'alpha ' + deviceVars.orientation.alpha + ' | ';
-  devStuff += 'beta ' + deviceVars.orientation.beta + ' | ';
-  devStuff += 'gamma ' + deviceVars.orientation.gamma;
-  gameVars.gameForeCTX.fillText(devStuff, 3, 73);
+  devStuff = 'orientation        (°)       ';
+  devStuff += 'a ' + deviceVars.orientation.alpha.toFixed(2)  + ' | ';
+  devStuff += 'b ' + deviceVars.orientation.beta.toFixed(2)  + ' | ';
+  devStuff += 'g ' + deviceVars.orientation.gamma.toFixed(2) ;
+  gameVars.gameForeCTX.fillText(devStuff, 3, (textHeight * 4));
 
-  devStuff = 'interval           (ms?)  ' + deviceVars.interval;
-  gameVars.gameForeCTX.fillText(devStuff, 3, 93);
+  devStuff = 'interval             (ms?) ' + deviceVars.interval;
+  gameVars.gameForeCTX.fillText(devStuff, 3, (textHeight * 5));
 }
 
 function gameMoveBall(frameTime) {
-/*
-  gameVars.ball.speedX
-*/
-  gameVars.ball.posiX += (gameVars.ball.speedX * frameTime);
-
-  //add super-simple gravity:
-  if (!gameVars.ball.onGround) {
-    gameVars.ball.speedY += (frameTime * 200);
+  if (deviceVars.orientation.beta > -80 && deviceVars.orientation.beta < -100) {
+    //this version should mean you can move the ball about kind of as a ixed inertia object!
+    gameVars.ball.speedX = deviceVars.accelerationIncludingGravity.x;
+    gameVars.ball.speedY = deviceVars.accelerationIncludingGravity.y;
   }
+  else {
+    //this would ber more like a spirit level, which is the original idea from Belinda Robinson - like the old physical games.
+    gameVars.ball.speedX = deviceVars.orientation.beta;
+    gameVars.ball.speedY = deviceVars.orientation.gamma;
+  }
+
+
+
+  gameVars.ball.posiX += (gameVars.ball.speedX * frameTime);
 
   gameVars.ball.posiY += (gameVars.ball.speedY * frameTime);
 }
@@ -149,7 +149,7 @@ function gameRenderBack() {// use this canvas for backgrounds and paralax type s
 function gameRenderMain() {
   gameVars.gameMainCTX.clearRect(0, 0, gameWindow.width, gameWindow.height);
   var ballWidth = (gameVars.ball.width * gameVars.scale);
-  //if height is different, so that too LD
+  //if height is different, do that too.
   gameVars.gameMainCTX.drawImage(//needs 3, 5, or 9 inputs, so if you clip then you need to stretch even if there is no stretch!!!! weird""
   gameVars.sprite, // Specifies the image, canvas, or video element to use
   0, // Optional. The x coordinate where to start clipping
@@ -164,7 +164,7 @@ function gameRenderMain() {
 }
 function gameRenderFore() {
   // Use this canvas for scores and messages.
-  gameVars.gameForeCTX.font = '100% Arial';
+  gameVars.gameForeCTX.font = '150% Arial';
   //
   gameVars.gameForeCTX.fillStyle = '#0f0';
   //proper green

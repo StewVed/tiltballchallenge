@@ -1,8 +1,4 @@
-/*
- * The resizing part of the game template.
- *
- */
- var wideAspect = (16 / 9);
+var wideAspect = (16 / 9);
 //hopefully comprehensive HTML cancel fullscreen:
 var killFS = (document.exitFullscreen || document.mozCancelFullScreen || document.webkitExitFullscreen || document.msExitFullscreen);
 //kick up fullscreen:
@@ -18,7 +14,6 @@ function resizeGame() {
     a = parseFloat(b);
     b = window.innerWidth;
     document.getElementById('gameContainer').style.transform = 'rotate(0deg)';
-    
     gWidth = b;
     gHeight = (gWidth / wideAspect);
     if (gHeight > a) {
@@ -42,6 +37,7 @@ function resizeGame() {
     gLeft = ((document.body.offsetWidth - gWidth) / 2);
   }
 
+  document.getElementById('gameContainer').style.fontSize = (gWidth * .3) + '%';
   //simple method of scaling the entire thing - make the font size a percent of the space.
   document.getElementById('gameContainer').style.width = gWidth + 'px';
   document.getElementById('gameContainer').style.height = gHeight + 'px';
@@ -49,7 +45,6 @@ function resizeGame() {
   document.getElementById('gameContainer').style.left = gLeft + 'px';
   document.getElementById('gameContainer').style.top = gTop + 'px';
 
-  document.body.style.fontSize = (a * .2) + '%';
   //ignore resizing the game hasn't been loaded and initialized yet.
   if (document.getElementById('gameMain')) {
     //detect the new size of the available area, make a note of it and resize the canvas
