@@ -145,7 +145,7 @@ function gameMainLoop() {
     gameCollisions(frameTime);
     gameRenderMain();
 
-    //showRawData();
+    showRawData();
   }
   gameVars.tFrame = window.requestAnimationFrame(function() {
     gameMainLoop()

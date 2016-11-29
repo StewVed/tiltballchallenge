@@ -11,9 +11,10 @@ function resizeGame() {
   document.body.style.width = a + 'px';
   document.body.style.height = b + 'px';
   if (a > b) {
+    //let's only allow landscape :)
     a = parseFloat(b);
     b = window.innerWidth;
-    document.getElementById('gameContainer').style.transform = 'rotate(0deg)';
+    //document.getElementById('gameContainer').style.transform = 'rotate(0deg)';
     gWidth = b;
     gHeight = (gWidth / wideAspect);
     if (gHeight > a) {
@@ -23,7 +24,7 @@ function resizeGame() {
     gLeft = ((document.body.offsetWidth - gWidth) / 2);
     gTop = ((document.body.offsetHeight - gHeight) / 2);
   }
-  else {
+  /*else {
     document.getElementById('gameContainer').style.transform = 'rotate(90deg)';
 
     gWidth = b;
@@ -35,7 +36,7 @@ function resizeGame() {
 
     gTop = ((document.body.offsetHeight - gHeight) / 2);
     gLeft = ((document.body.offsetWidth - gWidth) / 2);
-  }
+  }*/
 
   document.getElementById('gameContainer').style.fontSize = (gWidth * .3) + '%';
   //simple method of scaling the entire thing - make the font size a percent of the space.
