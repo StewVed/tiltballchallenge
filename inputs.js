@@ -313,6 +313,7 @@ function deviceMove(e) {
 
 
   //or the sake of testing, add a little acceleration here:
+  deviceVars.accelerationIncludingGravity.x = 3.9;
   deviceVars.accelerationIncludingGravity.y = 9.8;
 }
 

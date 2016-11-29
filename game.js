@@ -16,7 +16,7 @@ function gameCollisions(frameTime) {
   if (gameVars.ball.posiX <= 0) {
     var zVol = soundProportion(gameVars.ball.speedX * volProp);
     var poziSpeed = ballBounce(0, frameTime, gameVars.ball.speedX, gameVars.ball.posiX);
-    gameVars.ball.posiX = poziSpeed.zPozi;
+    gameVars.ball.posiX = poziSpeed.newPoz;
     gameVars.ball.speedX = poziSpeed.zSpeed; 
     soundBeep('sine', 750, zVol, 100);
   }
@@ -24,15 +24,15 @@ function gameCollisions(frameTime) {
   if (gameVars.ball.posiX >= (gameWindow.initWidth - gameVars.ball.width)) {
     var zVol = soundProportion(gameVars.ball.speedX * volProp);
     var poziSpeed = ballBounce((gameWindow.initWidth - gameVars.ball.width), frameTime, gameVars.ball.speedX, gameVars.ball.posiX);
-    gameVars.ball.posiX = poziSpeed.zPozi;
+    gameVars.ball.posiX = poziSpeed.newPoz;
     gameVars.ball.speedX = poziSpeed.zSpeed; 
-    soundBeep('sine', 750, zVol, 100);
+    soundBeep('sine', 750, zVol, 100);    
   }
   // Check for Ceiling:
   if (gameVars.ball.posiY <= 0) {
     var zVol = soundProportion(gameVars.ball.speedY * volProp);
     var poziSpeed = ballBounce(0, frameTime, gameVars.ball.speedY, gameVars.ball.posiY);
-    gameVars.ball.posiY = poziSpeed.zPozi;
+    gameVars.ball.posiY = poziSpeed.newPoz;
     gameVars.ball.speedY = poziSpeed.zSpeed;
     soundBeep('sine', 1000, zVol, 100);
   }
@@ -40,38 +40,43 @@ function gameCollisions(frameTime) {
   if (gameVars.ball.posiY >= (gameWindow.initHeight - gameVars.ball.height)) {
     var zVol = soundProportion(gameVars.ball.speedY * volProp);
     var poziSpeed = ballBounce((gameWindow.initHeight - gameVars.ball.height), frameTime, gameVars.ball.speedY, gameVars.ball.posiY);
-    gameVars.ball.posiY = poziSpeed.zPozi;
-    gameVars.ball.speedY = poziSpeed.zSpeed;
+    gameVars.ball.posiY = poziSpeed.newPoz;
+    gameVars.ball.speedY = poziSpeed.zSpeed;   
     soundBeep('sine', 500, zVol, 100);
   }
   // extra stuff here, like walls, objects, etc,
 }
 
-function gameCollisionCheckX() {
-  var y = 0;
+function noCollisionsX() {
+  var y = 1;
   // Check for Left Wall:
   if (gameVars.ball.posiX <= 0) {
-    y = 1;
+    y = 0;
   }
   // Check for right wall:
   if (gameVars.ball.posiX >= (gameWindow.initWidth - gameVars.ball.width)) {
-    y = 1;
+    y = 0;
   }
+
+  if (!y) {
+    y = gameVars.ball.speedX;
+  }
+  
   return y;
 }
 
-function gameCollisionCheckY() {
-  var y = 0;
+function noCollisionsY() {
+  var y = 1;
   // Check for Ceiling:
   if (gameVars.ball.posiY <= 0) {
-    y = 1;
+    y = 0;
   }
   //Check for floor:
   if (gameVars.ball.posiY >= (gameWindow.initHeight - gameVars.ball.height)) {
-    y = 1;
+    y = 0;
   }
 
-  if (y) {
+  if (!y) {
     y = gameVars.ball.speedY;
   }
 
@@ -119,7 +124,7 @@ function ballBounce(zEdge, frameTime, zSpeed, zPozi) {
     With a very rigid ball, the entire bounce would take place within milliseconds if not less than that.
   */
   
-  return {zPozi, zSpeed};
+  return {newPoz, zSpeed};
 }
 
 function gameMainLoop() {
@@ -131,7 +136,7 @@ function gameMainLoop() {
    * Find the amount of time that has gone by since last frams
   */
   var tNow = new Date().getTime();
-  var frameTime = (tNow - gameVars.tWoz) / 100; //16ms would become .016s
+  var frameTime = (tNow - gameVars.tWoz) / 33; //about right I think
   gameVars.tWoz = tNow;
   if (frameTime > 0 && !gameVars.paused) {
     //update any gamepads here; the mouse, touch, and keyboard inputs are updated as they change.
@@ -140,50 +145,11 @@ function gameMainLoop() {
     gameCollisions(frameTime);
     gameRenderMain();
 
-    showRawData();
+    //showRawData();
   }
   gameVars.tFrame = window.requestAnimationFrame(function() {
     gameMainLoop()
   });
-}
-
-function showRawData() {
-
-  gameVars.gameForeCTX.clearRect(0, 0, gameWindow.width, gameWindow.height);
-  gameVars.gameForeCTX.font = '100% sans-serif';
-  gameVars.gameForeCTX.fillStyle = 'hsla(120, 100%, 50%, .5)';
-
-  var textHeight = parseFloat(gameVars.gameForeCTX.font) * 2 ;
-    
-  var devStuff = 'accelWithGrav (m/s2) ';
-  devStuff += 'x ' + deviceVars.accelerationIncludingGravity.x.toFixed(1) + ' | ';
-  devStuff += 'y ' + deviceVars.accelerationIncludingGravity.y.toFixed(1)  + ' | ';
-  devStuff += 'z ' + deviceVars.accelerationIncludingGravity.z.toFixed(1) ;
-  gameVars.gameForeCTX.fillText(devStuff, 3, (textHeight * 1));
-  /*
-  devStuff = 'acceleration     (m/s2) ';
-  devStuff += 'x ' + deviceVars.acceleration.x.toFixed(1)  + ' | ';
-  devStuff += 'y ' + deviceVars.acceleration.y.toFixed(1)  + ' | ';
-  devStuff += 'z ' + deviceVars.acceleration.z.toFixed(1) ;
-  gameVars.gameForeCTX.fillText(devStuff, 3, (textHeight * 2));
-
-  devStuff = 'rotationRate     (°/s)    ';
-  devStuff += 'a ' + deviceVars.rotationRate.alpha.toFixed(1)  + ' | ';
-  devStuff += 'b ' + deviceVars.rotationRate.beta.toFixed(1)  + ' | ';
-  devStuff += 'g ' + deviceVars.rotationRate.gamma.toFixed(1) ;
-  gameVars.gameForeCTX.fillText(devStuff, 3, (textHeight * 3));
-
-  devStuff = 'orientation        (°)       ';
-  devStuff += 'a ' + deviceVars.orientation.alpha.toFixed(1)  + ' | ';
-  devStuff += 'b ' + deviceVars.orientation.beta.toFixed(1)  + ' | ';
-  devStuff += 'g ' + deviceVars.orientation.gamma.toFixed(1) ;
-  gameVars.gameForeCTX.fillText(devStuff, 3, (textHeight * 4));
-
-  devStuff = 'interval             (ms?) ' + deviceVars.interval;
-  gameVars.gameForeCTX.fillText(devStuff, 3, (textHeight * 5));
-  */
-  gameVars.gameForeCTX.fillText('Xspeed: ' + gameVars.ball.speedX.toFixed(2), 3, (textHeight * 3));
-  gameVars.gameForeCTX.fillText('Yspeed: ' + gameVars.ball.speedY.toFixed(2), 3, (textHeight * 4));
 }
 
 function gameMoveBall(frameTime) {
@@ -196,13 +162,13 @@ function gameMoveBall(frameTime) {
 
   //how about checking to see if the ball is currently on a surface here?
   //both speeds are set to 0.0001 to begin with.
-  if (gameVars.ball.speedX !== 0 && !gameCollisionCheckX()) {
+  if (noCollisionsX()) {
     gameVars.ball.speedX += ((deviceVars.accelerationIncludingGravity.x * frameTime) * zMass);
     gameVars.ball.speedX *= zFriction;
     gameVars.ball.posiX += (gameVars.ball.speedX * frameTime);
   }
 
-  if (!gameCollisionCheckY()) {
+  if (noCollisionsY()) {
     gameVars.ball.speedY += ((deviceVars.accelerationIncludingGravity.y * frameTime) * zMass);
     gameVars.ball.speedY *= zFriction;
     gameVars.ball.posiY += (gameVars.ball.speedY * frameTime);
@@ -292,4 +258,45 @@ function soundPlay(soundVariable, startTime) {
     soundVariable.currentTime = startTime;
   }
   soundVariable.play();
+}
+
+
+
+function showRawData() {
+
+  gameVars.gameForeCTX.clearRect(0, 0, gameWindow.width, gameWindow.height);
+  gameVars.gameForeCTX.font = '100% sans-serif';
+  gameVars.gameForeCTX.fillStyle = 'hsla(120, 100%, 50%, .3)';
+
+  var textHeight = parseFloat(gameVars.gameForeCTX.font) * 2 ;
+    
+  var devStuff = 'accelWithGrav (m/s2) ';
+  devStuff += 'x ' + deviceVars.accelerationIncludingGravity.x.toFixed(1) + ' | ';
+  devStuff += 'y ' + deviceVars.accelerationIncludingGravity.y.toFixed(1)  + ' | ';
+  devStuff += 'z ' + deviceVars.accelerationIncludingGravity.z.toFixed(1) ;
+  gameVars.gameForeCTX.fillText(devStuff, 3, (textHeight * 1));
+  /*
+  devStuff = 'acceleration     (m/s2) ';
+  devStuff += 'x ' + deviceVars.acceleration.x.toFixed(1)  + ' | ';
+  devStuff += 'y ' + deviceVars.acceleration.y.toFixed(1)  + ' | ';
+  devStuff += 'z ' + deviceVars.acceleration.z.toFixed(1) ;
+  gameVars.gameForeCTX.fillText(devStuff, 3, (textHeight * 2));
+
+  devStuff = 'rotationRate     (°/s)    ';
+  devStuff += 'a ' + deviceVars.rotationRate.alpha.toFixed(1)  + ' | ';
+  devStuff += 'b ' + deviceVars.rotationRate.beta.toFixed(1)  + ' | ';
+  devStuff += 'g ' + deviceVars.rotationRate.gamma.toFixed(1) ;
+  gameVars.gameForeCTX.fillText(devStuff, 3, (textHeight * 3));
+
+  devStuff = 'orientation        (°)       ';
+  devStuff += 'a ' + deviceVars.orientation.alpha.toFixed(1)  + ' | ';
+  devStuff += 'b ' + deviceVars.orientation.beta.toFixed(1)  + ' | ';
+  devStuff += 'g ' + deviceVars.orientation.gamma.toFixed(1) ;
+  gameVars.gameForeCTX.fillText(devStuff, 3, (textHeight * 4));
+
+  devStuff = 'interval             (ms?) ' + deviceVars.interval;
+  gameVars.gameForeCTX.fillText(devStuff, 3, (textHeight * 5));
+  */
+  gameVars.gameForeCTX.fillText('Xspeed: ' + gameVars.ball.speedX.toFixed(2), 3, (textHeight * 3));
+  gameVars.gameForeCTX.fillText('Yspeed: ' + gameVars.ball.speedY.toFixed(2), 3, (textHeight * 4));
 }

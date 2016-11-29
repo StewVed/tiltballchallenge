@@ -73,7 +73,7 @@ function Init() {
 
   //center the ball to the game area:
   gameVars.ball.posiX = ((gameWindow.initWidth / 2) - (gameVars.ball.width / 2));
-  //gameVars.ball.posiY = ((gameWindow.initHeight / 2) - (gameVars.ball.height / 2));
+  gameVars.ball.posiY = ((gameWindow.initHeight / 2) - (gameVars.ball.height / 2));
   
   //Create the canvas elements for the game:
   document.getElementById('gameContainer').innerHTML =
