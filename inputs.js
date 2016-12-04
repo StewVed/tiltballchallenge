@@ -281,8 +281,8 @@ function deviceOrient(e) {
   //WebKit : The rotation around the y axis. The gamma value is 0° when the left and right edges of the device are equidistant from the surface of the earth. The value increases as the right side is tipped towards the surface of the earth.
   deviceVars.orientation.gamma = null2zero(e.gamma);
 }
-*/
 
+*/
 function deviceMove(e) {
   /*
     The event returns four properties:
@@ -308,18 +308,18 @@ function deviceMove(e) {
   */
 
   //swapped these round because I am exclusively doing landscape, and x and y are for portrait.
-  deviceVars.accelerationIncludingGravity.y = null2zero(e.accelerationIncludingGravity.x);
-  deviceVars.accelerationIncludingGravity.x = -null2zero(e.accelerationIncludingGravity.y);
+  deviceVars.accelerationIncludingGravity.y = -null2zero(e.accelerationIncludingGravity.x);
+  deviceVars.accelerationIncludingGravity.x = null2zero(e.accelerationIncludingGravity.y);
   //deviceVars.accelerationIncludingGravity.z = null2zero(e.accelerationIncludingGravity.z);
 /*
   deviceVars.acceleration.x = null2zero(e.acceleration.x);
   deviceVars.acceleration.y = null2zero(e.acceleration.y);
   deviceVars.acceleration.z = null2zero(e.acceleration.z);
-*/
+
   deviceVars.rotationRate.alpha = null2zero(e.rotationRate.alpha);
   deviceVars.rotationRate.beta = null2zero(e.rotationRate.beta);
   deviceVars.rotationRate.gamma = null2zero(e.rotationRate.gamma);
-
+*/
   deviceVars.interval = null2zero(e.interval);
 
 
