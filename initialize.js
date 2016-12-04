@@ -172,10 +172,11 @@ function addEventListeners() {
   //proilly have to be canvasFore element - dunno cos of bubbling.
   //document.getElementById('gameFore').addEventListener('focus', function(){gamePause(1)});
   window.addEventListener('blur', gamePause, true);
-
+  /*
   if (window.DeviceOrientationEvent) {
     window.addEventListener('deviceorientation', deviceOrient);
   }
+  */
   if (window.DeviceMotionEvent) {
     window.addEventListener('devicemotion', deviceMove);
   }

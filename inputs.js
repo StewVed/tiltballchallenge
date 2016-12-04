@@ -267,6 +267,7 @@ if (window.DeviceOrientationEvent) {
   window.addEventListener('deviceorientation', deviceOrientationEvent, false);
 }
 */
+/*
 function deviceOrient(e) {
   //Moz    : A number representing the motion of the device around the z axis, express in degrees with values ranging from 0 to 360
   //WebKit : The rotation around the z axis. The alpha value is 0° when the top of the device is pointed directly north. As the device is rotated counter-clockwise, the alpha value increases.
@@ -280,7 +281,7 @@ function deviceOrient(e) {
   //WebKit : The rotation around the y axis. The gamma value is 0° when the left and right edges of the device are equidistant from the surface of the earth. The value increases as the right side is tipped towards the surface of the earth.
   deviceVars.orientation.gamma = null2zero(e.gamma);
 }
-
+*/
 
 function deviceMove(e) {
   /*
@@ -305,14 +306,16 @@ function deviceMove(e) {
       {interval:0}
     ]
   */
-  deviceVars.accelerationIncludingGravity.x = null2zero(e.accelerationIncludingGravity.x);
-  deviceVars.accelerationIncludingGravity.y = null2zero(e.accelerationIncludingGravity.y);
-  deviceVars.accelerationIncludingGravity.z = null2zero(e.accelerationIncludingGravity.z);
 
+  //swapped these round because I am exclusively doing landscape, and x and y are for portrait.
+  deviceVars.accelerationIncludingGravity.y = null2zero(e.accelerationIncludingGravity.x);
+  deviceVars.accelerationIncludingGravity.x = -null2zero(e.accelerationIncludingGravity.y);
+  //deviceVars.accelerationIncludingGravity.z = null2zero(e.accelerationIncludingGravity.z);
+/*
   deviceVars.acceleration.x = null2zero(e.acceleration.x);
   deviceVars.acceleration.y = null2zero(e.acceleration.y);
   deviceVars.acceleration.z = null2zero(e.acceleration.z);
-
+*/
   deviceVars.rotationRate.alpha = null2zero(e.rotationRate.alpha);
   deviceVars.rotationRate.beta = null2zero(e.rotationRate.beta);
   deviceVars.rotationRate.gamma = null2zero(e.rotationRate.gamma);
