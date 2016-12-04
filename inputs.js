@@ -9,16 +9,13 @@
  * Sensetivity should be adjustable, and axes and buttons would be configurable
 */
 function bubbleStop(e) {
-  try {
+  if (!e) {
+    var e = window.event;
+  }
+  if (e.cancelable) {
     e.preventDefault();
     e.stopPropagation();
-  } catch (ex) {
-    mouseClear();
-    touchVars = [];
-    //just blank the touches back to nothing.
-    touchDown = null ;
   }
-  //this can fail on touch if scrolling is running on an element at the time...like the uLauncher
 }
 function findTarget(e) {
   if (!e) {
@@ -92,7 +89,9 @@ function mouseClear() {
   document.body.style.cursor = 'default';
 }
 function mouseDown(e) {
-  bubbleStop(e);
+  if (!e.touch2Mouse) {
+    bubbleStop(e);
+  }
   var targ = findTarget(e);
   mouseVars.button = null == e.which ? e.button : e.which;
   mouseVars.type = 'click';
@@ -110,7 +109,9 @@ function mouseDown(e) {
   //anything that is needed on a mousedown/when a finger touches the screen goes here.
 }
 function mouseMove(e) {
-  bubbleStop(e);
+  if (!e.touch2Mouse) {
+    bubbleStop(e);
+  }
   if (mouseVars.moved) {
     return;
     //only accept an input every frame. - probably won't work though
@@ -166,7 +167,10 @@ function mouseMoveOver(targ) {
   */
 }
 function mouseUp(e) {
-  bubbleStop(e);
+  if (!e.touch2Mouse) {
+    bubbleStop(e);
+  }
+  
   //do any mouseup stuff here, eg. flinging or animated panning
   if (mouseVars.type == 'click') {
     if (mouseVars.button = 1) {
@@ -183,6 +187,11 @@ function mouseWheel(e) {/*
 }
 function mouseClick() {
   //if you need something done on a mouse click or tap, lob it here :D
+  if (!gameVars.running) {
+    gameVars.tWoz = (new Date().getTime()) - 1;
+    gameVars.running = 1;
+    gameMainLoop();
+  }
 }
 function mouseLongClick() {//this is also the right-click.
   //right-click / long tap stuff - custom menu for example.
@@ -194,8 +203,7 @@ function touchChange(e) {
     id: e.identifier,
     clientX: e.clientX,
     clientY: e.clientY,
-    preventDefault: function() {},
-    stopPropagation: function() {}
+    touch2Mouse:1
   };
   //return a new event object back with only the things I want in it :)
 }

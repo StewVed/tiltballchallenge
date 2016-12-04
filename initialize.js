@@ -64,7 +64,7 @@ function Init() {
   };
 
   gameVars = {
-    tWoz:0, tFrame:0,
+    tWoz:0, tFrame:0, running:0,
     gameBack:null, gameMain:null, gameFore:null,
     gameBackCTX:null, gameMainCTX:null, gameForeCTX:null,
     ball:{width:32, height:32, flinging:0, posiX:0, posiY:1, speedX:0.0001, speedY:0.0001},
@@ -118,6 +118,11 @@ function Init() {
    * call it by doing
    * soundPlay(gameVars.sound1, 0); //0 is the startTime of the sound.
   */
+  
+  //make sure that the window is focused.
+  window.blur();
+  window.setTimeout(function(){window.focus()}, 0);
+  
 
   InitSet();
 }
@@ -136,7 +141,7 @@ function InitSet() {
 }
 
 function addEventListeners() {
-  var zElem = document.getElementById('gameContainer');
+  var zElem = document.getElementById('gameFore');
   //window.addEventListener('error', Win_errorHandler, false); //now done from the main index.html file
   window.addEventListener('resize', resizeGame, false);
   /*
@@ -144,14 +149,14 @@ function addEventListeners() {
    * if this doesn't work, go back to window/document
    * and use blur/focus/pause.
    */
-  zElem.addEventListener('contextmenu', bubbleStop, false);
-  zElem.addEventListener('dblclick', bubbleStop, false);
+  window.addEventListener('contextmenu', bubbleStop, false);
+  window.addEventListener('dblclick', bubbleStop, false);
   //all below used to be document.getElementById('Wallpaper')
-  zElem.addEventListener(mouseWheelType, mouseWheel, false);
+  window.addEventListener(mouseWheelType, mouseWheel, false);
 
   zElem.addEventListener('touchstart', touchDown, false);
   zElem.addEventListener('touchmove', touchMove, false);
-  zElem.addEventListener('touchcancel', touchUp, false);
+  //zElem.addEventListener('touchcancel', touchUp, false);
   zElem.addEventListener('touchend', touchUp, false);
   zElem.addEventListener('touchleave', touchUp, false);
 
@@ -159,14 +164,14 @@ function addEventListeners() {
   zElem.addEventListener('mousemove', mouseMove, false);
   zElem.addEventListener('mouseup', mouseUp, false);
 
-  zElem.addEventListener('keydown', keyDown, false);
-  zElem.addEventListener('keyup', keyUp, false);
+  window.addEventListener('keydown', keyDown, false);
+  window.addEventListener('keyup', keyUp, false);
 
   //hopefully this will let me pause/resume depending on whether
   //the game element is focused.
   //proilly have to be canvasFore element - dunno cos of bubbling.
-  document.getElementById('gameFore').addEventListener('focus', function(){gamePause(0)});
-  document.getElementById('gameFore').addEventListener('blur', function(){gamePause(1)});
+  //document.getElementById('gameFore').addEventListener('focus', function(){gamePause(1)});
+  window.addEventListener('blur', gamePause, true);
 
   if (window.DeviceOrientationEvent) {
     window.addEventListener('deviceorientation', deviceOrient);

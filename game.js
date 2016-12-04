@@ -1,3 +1,117 @@
+function gameMainLoop() {
+  if (!gameVars) {
+    //happens when the window is closed.
+    return;
+  }
+  /*
+   * Find the amount of time that has gone by since last frams
+  */
+  var tNow = new Date().getTime();
+  var frameTime = (tNow - gameVars.tWoz) / 33; //about right I think
+  gameVars.tWoz = tNow;
+  if (frameTime > 0 && gameVars.running) {
+    //update any gamepads here; the mouse, touch, and keyboard inputs are updated as they change.
+    gamePadUpdate();
+    emulateDirectionsByGamePad();
+    gameMoveBall(frameTime);
+    gameCollisions(frameTime);
+    gameRenderMain();
+
+    showRawData();
+    
+    gameVars.tFrame = window.requestAnimationFrame(function() {
+      gameMainLoop();
+    });
+  }
+}
+
+function emulateDirectionsByGamePad() {
+  if (gamePadVars.length > 0) {
+    //just poll the first gamepad; no 2-player here :D
+    deviceVars.accelerationIncludingGravity.x = 0;
+    deviceVars.accelerationIncludingGravity.y = 0;
+    for (var y = 0; y < gamePadVars[0].axes.length; y++) {
+      if (gamePadVars[0].axes[y] < -.2 || gamePadVars[0].axes[y] > .2) { //add a deadZone...
+        if (y % 2) { //should be even | Y
+          deviceVars.accelerationIncludingGravity.y = - (gamePadVars[0].axes[y] * 9.8);
+        }
+        else { //should be odd | X
+          deviceVars.accelerationIncludingGravity.x = (gamePadVars[0].axes[y] * 9.8);
+        }
+      }
+    }
+  }
+}
+
+function gameMoveBall(frameTime) {
+  //inertia - give the ball mass!
+  //just shave off a little of the acceleration... you got the f=ma and p=mv equations
+  //this should mean that speedX and Y are added to by the force applied to the ball, 
+  //then friction is applied after that
+  var zMass = .5;
+  var zFriction = .98; 
+
+  //how about checking to see if the ball is currently on a surface here?
+  //both speeds are set to 0.0001 to begin with.
+  if (canMoveX()) {
+    gameVars.ball.speedX += ((deviceVars.accelerationIncludingGravity.x * frameTime) * zMass);
+    gameVars.ball.speedX *= zFriction;
+    gameVars.ball.posiX += (gameVars.ball.speedX * frameTime);
+  }
+
+  if (canMoveY()) {
+    gameVars.ball.speedY += ((deviceVars.accelerationIncludingGravity.y * frameTime) * zMass);
+    gameVars.ball.speedY *= zFriction;
+    gameVars.ball.posiY -= (gameVars.ball.speedY * frameTime);
+  }
+
+  //this should mean you can move the ball about kind of as a fixed inertia object!
+  //could do z as well, but this will be 2D... like the old games :)
+  /*
+  //this should be more like a spirit level, though could the angle be calculated from
+  //the 3 axis of accelerationIncludingGravity?
+  gameVars.ball.speedX += deviceVars.orientation.beta;
+  gameVars.ball.speedY += -deviceVars.orientation.gamma;
+  */
+
+}
+
+function canMoveX() {
+  //make the answering variable see if there is any momentum or force
+  var y = (gameVars.ball.speedX || deviceVars.accelerationIncludingGravity.x);
+  //if the ball isn't moving, then check whether it is on a surface, and whether there is any force in the opposite direction of the surface.
+  if (y) {
+    // Check for Left Wall:
+    if (gameVars.ball.posiX == 0 && deviceVars.accelerationIncludingGravity.x < 0) {
+      y = 0;
+    }
+    // Check for right wall:
+    if (gameVars.ball.posiX == (gameWindow.initWidth - gameVars.ball.width) && deviceVars.accelerationIncludingGravity.x > 0) {
+      y = 0;
+    }
+  }
+  
+  return y;
+}
+
+function canMoveY() {
+  //make the answering variable see if there is any momentum or force
+  var y = (gameVars.ball.speedY || deviceVars.accelerationIncludingGravity.y);
+  //if the ball isn't moving, then check whether it is on a surface, and whether there is any force in the opposite direction of the surface.
+  if (y) {
+    // Check for ceiling:
+    if (gameVars.ball.posiY == 0 && deviceVars.accelerationIncludingGravity.y > 0) {
+      y = 0;
+    }
+    // Check forfloor:
+    if (gameVars.ball.posiY == (gameWindow.initHeight - gameVars.ball.height) && deviceVars.accelerationIncludingGravity.y < 0) {
+      y = 0;
+    }
+  }
+
+  return y;
+}
+
 function gameCollisions(frameTime) {
   var volProp = .005;
 
@@ -11,14 +125,15 @@ function gameCollisions(frameTime) {
    * ball.height = height of the ball
    *
    * gameWindow.width|height = the size of the game area
+   * tuned (by ear) to Emeli Sandé - Breathing Underwater cos that is a superb song!!!
   */
   // Check for Left Wall:
   if (gameVars.ball.posiX <= 0) {
-    var zVol = soundProportion(gameVars.ball.speedX * volProp);
     var poziSpeed = ballBounce(0, frameTime, gameVars.ball.speedX, gameVars.ball.posiX);
     gameVars.ball.posiX = poziSpeed.newPoz;
-    gameVars.ball.speedX = poziSpeed.zSpeed; 
-    soundBeep('sine', 750, zVol, 100);
+    gameVars.ball.speedX = poziSpeed.zSpeed;
+    var zVol = soundProportion(gameVars.ball.speedX * volProp);
+    soundBeep('sine', 708, zVol, 100);
   }
   // Check for right wall:
   if (gameVars.ball.posiX >= (gameWindow.initWidth - gameVars.ball.width)) {
@@ -26,7 +141,7 @@ function gameCollisions(frameTime) {
     var poziSpeed = ballBounce((gameWindow.initWidth - gameVars.ball.width), frameTime, gameVars.ball.speedX, gameVars.ball.posiX);
     gameVars.ball.posiX = poziSpeed.newPoz;
     gameVars.ball.speedX = poziSpeed.zSpeed; 
-    soundBeep('sine', 750, zVol, 100);    
+    soundBeep('sine', 933, zVol, 100);    
   }
   // Check for Ceiling:
   if (gameVars.ball.posiY <= 0) {
@@ -34,7 +149,7 @@ function gameCollisions(frameTime) {
     var poziSpeed = ballBounce(0, frameTime, gameVars.ball.speedY, gameVars.ball.posiY);
     gameVars.ball.posiY = poziSpeed.newPoz;
     gameVars.ball.speedY = poziSpeed.zSpeed;
-    soundBeep('sine', 1000, zVol, 100);
+    soundBeep('sine', 1180, zVol, 100);
   }
   //Check for floor:
   if (gameVars.ball.posiY >= (gameWindow.initHeight - gameVars.ball.height)) {
@@ -42,50 +157,15 @@ function gameCollisions(frameTime) {
     var poziSpeed = ballBounce((gameWindow.initHeight - gameVars.ball.height), frameTime, gameVars.ball.speedY, gameVars.ball.posiY);
     gameVars.ball.posiY = poziSpeed.newPoz;
     gameVars.ball.speedY = poziSpeed.zSpeed;   
-    soundBeep('sine', 500, zVol, 100);
+    soundBeep('sine', 470, zVol, 100);
   }
   // extra stuff here, like walls, objects, etc,
 }
 
-function noCollisionsX() {
-  var y = 1;
-  // Check for Left Wall:
-  if (gameVars.ball.posiX <= 0) {
-    y = 0;
-  }
-  // Check for right wall:
-  if (gameVars.ball.posiX >= (gameWindow.initWidth - gameVars.ball.width)) {
-    y = 0;
-  }
-
-  if (!y) {
-    y = gameVars.ball.speedX;
-  }
-  
-  return y;
-}
-
-function noCollisionsY() {
-  var y = 1;
-  // Check for Ceiling:
-  if (gameVars.ball.posiY <= 0) {
-    y = 0;
-  }
-  //Check for floor:
-  if (gameVars.ball.posiY >= (gameWindow.initHeight - gameVars.ball.height)) {
-    y = 0;
-  }
-
-  if (!y) {
-    y = gameVars.ball.speedY;
-  }
-
-  return y;
-}
 function ballBounce(zEdge, frameTime, zSpeed, zPozi) {
   //emulate energy loss from heat, sound, inertia(?), conversion from kinetic to potential, then back, etc. as the ball bounces:
   //just take a guess at 10% loss of energy for the moment :)
-  var squidgy = .9;
+  var squidgy = .8;
 
   //the position of the ball at the last frame
   var ballMovedlastFrame = -(zSpeed * frameTime);
@@ -99,7 +179,7 @@ function ballBounce(zEdge, frameTime, zSpeed, zPozi) {
 
   var newPoz = zEdge + ((zSpeed * frameTime) * bouncePercent);
   //simple thing to emulate a ball's bounce being able to absorb some of the rebound by deforming.
-  if (zSpeed > -1 && zSpeed < 1) {
+  if (zSpeed > -3 && zSpeed < 3) {
     //essentialy, if the ball's [kinetic momentum/energy potential] is less than a number,
     //the ball will no longer bounce off the surface; that momentum would continue to 
     //deform the ball until all kinetic and potential are measurably lost by the squidgy.
@@ -127,68 +207,10 @@ function ballBounce(zEdge, frameTime, zSpeed, zPozi) {
   return {newPoz, zSpeed};
 }
 
-function gameMainLoop() {
-  if (!gameVars) {
-    //happens when the window is closed.
-    return;
-  }
-  /*
-   * Find the amount of time that has gone by since last frams
-  */
-  var tNow = new Date().getTime();
-  var frameTime = (tNow - gameVars.tWoz) / 33; //about right I think
-  gameVars.tWoz = tNow;
-  if (frameTime > 0 && !gameVars.paused) {
-    //update any gamepads here; the mouse, touch, and keyboard inputs are updated as they change.
-    gamePadUpdate();
-    gameMoveBall(frameTime);
-    gameCollisions(frameTime);
-    gameRenderMain();
-
-    showRawData();
-  }
-  gameVars.tFrame = window.requestAnimationFrame(function() {
-    gameMainLoop()
-  });
-}
-
-function gameMoveBall(frameTime) {
-  //inertia - give the ball mass!
-  //just shave off a little of the acceleration... you got the f=ma and p=mv equations
-  //this should mean that speedX and Y are added to by the force applied to the ball, 
-  //then friction is applied after that
-  var zMass = .5;
-  var zFriction = .98; 
-
-  //how about checking to see if the ball is currently on a surface here?
-  //both speeds are set to 0.0001 to begin with.
-  if (noCollisionsX()) {
-    gameVars.ball.speedX += ((deviceVars.accelerationIncludingGravity.x * frameTime) * zMass);
-    gameVars.ball.speedX *= zFriction;
-    gameVars.ball.posiX += (gameVars.ball.speedX * frameTime);
-  }
-
-  if (noCollisionsY()) {
-    gameVars.ball.speedY += ((deviceVars.accelerationIncludingGravity.y * frameTime) * zMass);
-    gameVars.ball.speedY *= zFriction;
-    gameVars.ball.posiY += (gameVars.ball.speedY * frameTime);
-  }
-
-  //this should mean you can move the ball about kind of as a fixed inertia object!
-  //could do z as well, but this will be 2D... like the old games :)
-  /*
-  //this should be more like a spirit level, though could the angle be calculated from
-  //the 3 axis of accelerationIncludingGravity?
-  gameVars.ball.speedX += deviceVars.orientation.beta;
-  gameVars.ball.speedY += -deviceVars.orientation.gamma;
-  */
-
-  
-}
-function gamePause(yes) {
+function gamePause() {
   // needs a conditional to check for focus really
-  if (yes) {}
-  gameVars.paused = yes;
+  //say "paused. tap to continue!"
+  gameVars.running = 0;
 }
 function gameRenderBack() {// use this canvas for backgrounds and paralax type stuff.
 }

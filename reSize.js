@@ -10,36 +10,44 @@ function resizeGame() {
   var gLeft, gWidth, gTop, gHeight;
   document.body.style.width = a + 'px';
   document.body.style.height = b + 'px';
+  
+
   if (a > b) {
-    //let's only allow landscape :)
+    //landscape - just make it correct.
+    document.getElementById('gameContainer').style.transform = 'rotate(0deg)';
+
+  }
+  else {
+    //portrait - turn 90 degrees, and swap height/width
+    document.getElementById('gameContainer').style.transform = 'rotate(90deg)';
     a = parseFloat(b);
     b = window.innerWidth;
-    //document.getElementById('gameContainer').style.transform = 'rotate(0deg)';
-    gWidth = b;
-    gHeight = (gWidth / wideAspect);
-    if (gHeight > a) {
-      gHeight = a;
-      gWidth = gHeight * wideAspect;
+    /*
+    gHeight = b
+    gWidth = (gHeight / wideAspect);
+    if (gWidth > a) {
+      gWidth = a;
+      gHeight = gWidth * wideAspect;
     }
-    gLeft = ((document.body.offsetWidth - gWidth) / 2);
+
     gTop = ((document.body.offsetHeight - gHeight) / 2);
+    gLeft = ((document.body.offsetWidth - gWidth) / 2);
+    */
   }
-  /*else {
-    document.getElementById('gameContainer').style.transform = 'rotate(90deg)';
 
-    gWidth = b;
+    gWidth = a;
     gHeight = (gWidth / wideAspect);
-    if (gHeight > a) {
-      gHeight = a;
+    if (gHeight > b) {
+      gHeight = b;
       gWidth = gHeight * wideAspect;
     }
 
-    gTop = ((document.body.offsetHeight - gHeight) / 2);
     gLeft = ((document.body.offsetWidth - gWidth) / 2);
-  }*/
+    gTop = ((document.body.offsetHeight - gHeight) / 2);
 
-  document.getElementById('gameContainer').style.fontSize = (gWidth * .3) + '%';
+    
   //simple method of scaling the entire thing - make the font size a percent of the space.
+  document.getElementById('gameContainer').style.fontSize = (gWidth * .3) + '%';
   document.getElementById('gameContainer').style.width = gWidth + 'px';
   document.getElementById('gameContainer').style.height = gHeight + 'px';
   //move the gameContainer to the center of the available size... if screen is wide, this is 0,0
@@ -60,8 +68,9 @@ function resizeGame() {
     //calculate the size ratio from initial/base - let's do 640 x 360
     gameVars.scale = gameWindow.width / gameWindow.initWidth;
     //redraw the sprite to the new size
-    gameVars.sprite.width = (640 * gameVars.scale);
-    gameVars.sprite.height = (360 * gameVars.scale);
+    gameVars.sprite.width = (gameWindow.initWidth * gameVars.scale);
+    gameVars.sprite.height = (gameWindow.initHeight * gameVars.scale);
+    
     //move the sprite canvas element off to the left so it isn't shown.
     //gameVars.sprite.style.left = -gameVars.sprite.width + 'px';
     gameVars.sprite.style.left = (document.getElementById('gameContainer').offsetLeft - gameVars.sprite.width) + 'px';
