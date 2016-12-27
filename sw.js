@@ -1,14 +1,38 @@
-/*
-  just use the rolling release (cache, check for newer file & cache new version) for this project :D 
-*/
-self.addEventListener('fetch', function(event) {
-  event.respondWith(caches.open('tiltballchallenge').then(function(cache) {
-    return cache.match(event.request).then(function(response) {
-      var fetchPromise = fetch(event.request).then(function(networkResponse) {
-        cache.put(event.request, networkResponse.clone());
-        return networkResponse;
-      })
-      return response || fetchPromise;
-    })
+var CACHE = 'tiltballchallenge-2016-12-27';
+//https://serviceworke.rs/strategy-cache-only_service-worker_doc.html
+self.addEventListener('install', function(event) {
+  event.waitUntil(caches.open(CACHE).then(function(cache) {
+    return cache.addAll(['./', './appmanifest', './index.html', './game.js', './initialize.js', './inputs.js', './loader.js', './reSize.js', 'main.css'//do I not need the favicons?!?
+    ]).then(function() {
+      console.log('SW: app updated. awaiting activation');
+    });
   }));
 });
+self.addEventListener('fetch', function(event) {
+  //never bother checking online
+  event.respondWith(caches.match(event.request));
+});
+self.addEventListener('activate', function(event) {
+  event.waitUntil(caches.keys().then(function(cacheNames) {
+    return Promise.all(cacheNames.map(function(cacheName) {
+      if (cacheName !== CACHE) {
+        return caches.delete(cacheName);
+      }
+    })).then(function() {
+      console.log('SW: new version active.');
+      sendMessage(self, 'updated');
+    });
+  }));
+})
+
+function sendMessage(me, msg) {
+  console.log('SW: sendMessage try: ' + msg);
+
+  me.clients.matchAll().then(function(clients) {
+    console.log('SW: in forEach clients..');
+    clients.forEach(function(client) {
+      client.postMessage(msg);
+      console.log('SW: clients.client.id is ' + client.id);
+    });
+  });
+}
